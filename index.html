@@ -216,7 +216,6 @@
 </div>
 
 <script>
-    // UPDATED APPS SCRIPT URL
     const scriptURL = 'https://script.google.com/macros/s/AKfycbw_jUTxjwVV_wvQf0snSj7bv5L4DmHxlBq5ONWnP20IHH7Ynusnww_ba2K_CJjC8wsK/exec';
 
     window.onload = () => {
@@ -348,7 +347,6 @@
             const response = await fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) });
             const resultText = await response.text(); 
 
-            // Handle logic for the "Check Junk" Popup
             if (resultText.trim() === "SUCCESS_MAIL_CHECK") {
                 alert("🎯 APPLICATION SENT SUCCESSFULLY!\n\nIMPORTANT: Please check your JUNK/SPAM folder now. Your confirmation email has been sent, but it will likely land there first!");
             } else {
