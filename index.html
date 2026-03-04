@@ -45,6 +45,10 @@
         .row-promote { background-color: rgba(40, 167, 69, 0.2) !important; border-left: 4px solid #28a745; }
         .row-relegate { background-color: rgba(220, 53, 69, 0.2) !important; border-left: 4px solid #dc3545; }
 
+        /* Added Highlight Styles */
+        .row-urgent { background-color: #721c24 !important; border-left: 4px solid #f5c6cb; }
+        .row-overdue { background-color: #856404 !important; border-left: 4px solid #ffeeba; }
+
         .status-pending { color: var(--gold); font-weight: bold; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid var(--accent); background: var(--dark); color: white; box-sizing: border-box; font-size: 16px; }
         
@@ -268,6 +272,10 @@
                if (viewType === 'table') {
                    if (index < 2) rowClass = "row-promote";
                    else if (index >= totalRows - 2 && totalRows > 4) rowClass = "row-relegate";
+               } else if (viewType === 'fixtures') {
+                   // CHECK FOR OVERDUE/URGENT TAG FROM BACKEND (Column 12 / index 11)
+                   if (row[11] === "URGENT") rowClass = "row-urgent";
+                   else if (row[11] === "OVERDUE") rowClass = "row-overdue";
                }
 
                html += `<tr class="${rowClass}">`;
