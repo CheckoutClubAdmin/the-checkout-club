@@ -9,7 +9,7 @@
         :root { --red: #e63946; --gold: #ffcc00; --dark: #0b0c10; --card: #1f2833; --text: #c5c6c7; --accent: #45a29e; --header-bg: #2c3e50; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--dark); color: white; text-align: center; margin: 0; overflow-x: hidden; }
         
-        .header-brand { padding-top: 10px; } /* Reduced padding since logo is bigger */
+        .header-brand { padding-top: 10px; } 
         .header-brand h1 { font-family: 'Playfair Display', serif; font-size: 3.5rem; font-weight: 900; color: var(--gold); margin-top: 10px; letter-spacing: 2px; text-transform: uppercase; text-shadow: 3px 3px 0px rgba(0,0,0,0.8); margin-bottom: 25px;}
         
         nav { background: var(--card); padding: 15px; border-bottom: 3px solid var(--red); position: sticky; top: 0; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; z-index: 1000; }
@@ -32,6 +32,7 @@
             z-index: 999;
             width: 100%;
             box-sizing: border-box;
+            min-height: 45px;
         }
 
         .container { max-width: 900px; margin: auto; padding: 20px; box-sizing: border-box; }
@@ -48,8 +49,6 @@
         .custom-list li { margin-bottom: 15px; padding-left: 30px; position: relative; word-wrap: break-word; }
         .custom-list li::before { content: '🎯'; position: absolute; left: 0; }
         .custom-list strong { color: var(--gold); display: block; margin-bottom: 4px; }
-        
-        .sub-list { list-style: circle; margin-top: 5px; padding-left: 20px; color: #aeb0b1; }
         
         .view-controls { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
         .view-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--accent); color: white; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-weight: bold; flex: 1; max-width: 150px; text-align: center; }
@@ -78,7 +77,6 @@
         
         #pwa-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--card); border: 2px solid var(--gold); padding: 15px; border-radius: 10px; display: none; z-index: 2000; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        /* Spacing & Logo Size Fix */
         .logo { width: 220px; height: 220px; border-radius: 50%; border: 3px solid var(--gold); box-shadow: 0 0 25px rgba(230, 57, 70, 0.5); margin-bottom: 20px; margin-top: 20px; transition: 0.3s;}
         
         #statusResult { margin-top: 15px; padding: 15px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--gold); color: var(--gold); font-weight: bold; display: none; text-align: center; }
@@ -88,7 +86,7 @@
             .header-brand h1 { font-size: 2.2rem; margin-bottom: 15px;} 
             #countdown-timer { font-size: 1rem; top: 38px; }
             .header-brand { padding-top: 5px; }
-            .logo { width: 160px; height: 160px; } /* Slightly smaller for mobile */
+            .logo { width: 160px; height: 160px; } 
         }
     </style>
 </head>
@@ -124,16 +122,16 @@
             <ul class="custom-list">
                 <li>
                     <strong>🎯 Welcome to The Checkout Club | Season 1</strong>
-                    We are thrilled to officially launch The Checkout Club, a brand-new competitive darts community designed for players of all levels to test their mettle in a structured league format.
+                    Competitive darts for all levels. Structure, community, and the chase for the title.
                 </li>
                 <li>
-                    <strong>🗓️ Season 1 Launch: March 9th</strong>
-                    Our inaugural season officially kicks off on March 9th. All fixtures for Week 1 will be generated and visible on the website under your respective league tabs.
+                    <strong>🗓️ Season 1 Launch: March 23rd</strong>
+                    Our inaugural season officially kicks off on March 23rd. 
                 </li>
                 <li>
                     <strong>📜 Brief Rules Summary</strong>
                     <strong>Match Format:</strong> Best of 7 legs.<br>
-                    <strong>Scoring:</strong> 3 Points for the Match Win. 1 Point for every single leg won.
+                    <strong>Scoring:</strong> 3 Points for Win. 1 Point per leg won.
                 </li>
             </ul>
         </div>
@@ -199,7 +197,6 @@
                <div id="join-spinner" class="spinner"></div>
                <span>SEND APPLICATION</span>
             </button>
-            
             <hr style="margin: 30px 0; border: 0; border-top: 1px solid #444;">
             <h2>🔍 Check Application Status</h2>
             <input type="text" id="c_name" placeholder="Full Name">
@@ -212,24 +209,36 @@
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxFrjOyJPIQereI7b5JnB_wZvXBw9cvFOOkRDlNZ5sUYs7DeOrmG0pNnH350OzB3_yB/exec';
+    let dynamicTimerActive = false;
 
     window.onload = () => {
         setTimeout(() => { document.getElementById('pwa-toast').style.display = 'block'; }, 2000);
-        updateSeasonTimer();
-        setInterval(updateSeasonTimer, 1000);
+        handleTimerLogic();
     };
 
-    function updateSeasonTimer() {
-        const targetDate = new Date("March 9, 2026 00:00:00").getTime();
+    // New logic: Check launch date first, then fallback to App Script
+    function handleTimerLogic() {
+        const launchDate = new Date("March 23, 2026 00:00:00").getTime();
         const now = new Date().getTime();
-        const timeLeft = targetDate - now;
+        
+        if (now < launchDate) {
+            updateSeasonLaunchTimer(launchDate);
+            setInterval(() => updateSeasonLaunchTimer(launchDate), 1000);
+        } else {
+            fetchDynamicTimer();
+        }
+    }
+
+    function updateSeasonLaunchTimer(target) {
+        const now = new Date().getTime();
+        const timeLeft = target - now;
         const timerElement = document.getElementById("countdown-timer");
-        if (!timerElement) return;
+        
         if (timeLeft <= 0) {
-            timerElement.innerHTML = "🎯 Season 1 is Live!";
-            timerElement.style.color = "#28a745";
+            fetchDynamicTimer();
             return;
         }
+
         const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
         const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
@@ -237,8 +246,25 @@
         timerElement.innerHTML = `⏳ Season 1 Starts In: ${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
 
-    function hideToast() { document.getElementById('pwa-toast').style.display = 'none'; }
+    async function fetchDynamicTimer() {
+        if(dynamicTimerActive) return;
+        dynamicTimerActive = true;
+        const timerElement = document.getElementById("countdown-timer");
+        timerElement.innerHTML = "🎯 Season 1 is Live!";
+        timerElement.style.color = "#28a745";
 
+        try {
+            const res = await fetch(`${scriptURL}?action=getTimerText`);
+            const data = await res.json();
+            if(data && data.text) {
+                timerElement.innerHTML = data.text;
+                if(data.color) timerElement.style.color = data.color;
+            }
+        } catch (e) { console.log("Dynamic timer error", e); }
+    }
+
+    // Standard functionality helpers
+    function hideToast() { document.getElementById('pwa-toast').style.display = 'none'; }
     function show(id) { 
        document.querySelectorAll('.league-section').forEach(s => s.classList.remove('active')); 
        const target = document.getElementById(id);
@@ -248,89 +274,45 @@
     }
 
     async function toggleView(leagueId, viewType) { 
-       const tableDiv = document.getElementById(leagueId + '-table');
-       const fixturesDiv = document.getElementById(leagueId + '-fixtures');
-       tableDiv.classList.remove('sub-active'); 
-       fixturesDiv.classList.remove('sub-active'); 
-       
        const container = document.getElementById(leagueId + '-' + viewType);
+       document.getElementById(leagueId + '-table').classList.remove('sub-active'); 
+       document.getElementById(leagueId + '-fixtures').classList.remove('sub-active'); 
        container.classList.add('sub-active'); 
-       container.innerHTML = "<div style='text-align:center; padding:20px;'>Loading " + viewType + "...</div>";
-       
-       const action = viewType === 'table' ? 'getStandings' : 'getLeagueData';
+       container.innerHTML = "<div style='text-align:center; padding:20px;'>Loading...</div>";
        const leagueNames = {'PL':'Premiership', 'CH':'Championship', 'L1':'League 1', 'L2':'League 2'};
-
        try {
-           const res = await fetch(`${scriptURL}?action=${action}&league=${encodeURIComponent(leagueNames[leagueId])}`);
+           const res = await fetch(`${scriptURL}?action=${viewType === 'table' ? 'getStandings' : 'getLeagueData'}&league=${encodeURIComponent(leagueNames[leagueId])}`);
            const data = await res.json();
-           
-           if(!data || data.length < 1) {
-               container.innerHTML = "<p style='text-align:center;'>No data found.</p>";
-               return;
-           }
-
+           if(!data || data.length < 1) { container.innerHTML = "No data."; return; }
            let html = '<table><thead><tr>';
-           const colLimit = (viewType === 'table') ? 8 : 7;
-           
-           data[0].slice(0, colLimit).forEach(h => html += `<th>${h}</th>`);
+           data[0].slice(0, viewType === 'table' ? 8 : 7).forEach(h => html += `<th>${h}</th>`);
            html += '</tr></thead><tbody>';
-
-           const rows = data.slice(1).filter(r => r[0] !== "");
-           const totalRows = rows.length;
-
-           rows.forEach((row, index) => {
-               let rowClass = "";
-               if (viewType === 'table') {
-                   if (index < 2) rowClass = "row-promote";
-                   else if (index >= totalRows - 2 && totalRows > 4) rowClass = "row-relegate";
-               } else if (viewType === 'fixtures') {
-                   if (row[11] === "URGENT") rowClass = "row-urgent";
-                   else if (row[11] === "OVERDUE") rowClass = "row-overdue";
-               }
-
-               html += `<tr class="${rowClass}">`;
-               for(let i=0; i < colLimit; i++) {
-                   let cell = row[i] !== undefined ? row[i] : "";
-                   if(viewType === 'fixtures' && i === 4 && (!row[4] && !row[5])) {
-                       cell = "<span class='status-pending'>PENDING</span>";
-                   }
-                   html += `<td>${cell}</td>`;
-               }
-               html += '</tr>';
+           data.slice(1).forEach((row, index) => {
+               html += `<tr>${row.slice(0, viewType === 'table' ? 8 : 7).map(c => `<td>${c || ''}</td>`).join('')}</tr>`;
            });
-           html += '</tbody></table>';
-           container.innerHTML = html;
-       } catch (e) { 
-           container.innerHTML = "<div style='color:var(--red); padding:20px;'>Error loading data.</div>"; 
-       }
+           container.innerHTML = html + '</tbody></table>';
+       } catch (e) { container.innerHTML = "Error."; }
     }
-    
+
     async function checkStatus() {
          const n = document.getElementById('c_name').value, p = document.getElementById('c_pin').value, resDiv = document.getElementById('statusResult');
-         if(!n || !p) return alert("Enter Name and PIN");
          resDiv.style.display = "block"; resDiv.innerHTML = "Searching...";
          try {
              const r = await fetch(`${scriptURL}?action=checkStatus&name=${encodeURIComponent(n)}&pin=${p}`);
              const d = await r.json();
-             resDiv.innerHTML = d.status === "NOT_FOUND" ? "❌ Application not found." : `STATUS: ${d.status}<br>LEAGUE: ${d.league}`;
-         } catch (e) { resDiv.innerHTML = "Error checking status."; }
+             resDiv.innerHTML = d.status === "NOT_FOUND" ? "❌ Not found." : `STATUS: ${d.status}`;
+         } catch (e) { resDiv.innerHTML = "Error."; }
     }
 
     async function fetchOpponents() {
         const p1 = document.getElementById('p1').value, pin = document.getElementById('pin').value;
-        if(!p1 || !pin) return alert("Enter Name and PIN");
         try { 
             const res = await fetch(`${scriptURL}?action=getFixtures&name=${encodeURIComponent(p1)}&pin=${pin}`); 
             let data = await res.json(); 
             const sel = document.getElementById('p2'); 
             sel.innerHTML = '<option value="">-- Select Opponent --</option>'; 
-            data.filter(o => o && o !== "-").forEach(o => { 
-                let opt = document.createElement('option'); 
-                opt.value = opt.innerHTML = o; 
-                sel.appendChild(opt); 
-            }); 
-            if (data.length === 0) alert("No pending fixtures found.");
-        } catch (e) { alert("Error loading fixtures."); }
+            data.forEach(o => { let opt = document.createElement('option'); opt.value = opt.innerHTML = o; sel.appendChild(opt); }); 
+        } catch (e) { alert("Error."); }
     }
 
     async function handleSend(mode) {
@@ -338,17 +320,7 @@
         const fileInput = document.getElementById(isM ? 'screenshot' : 'j_screenshot');
         const btn = isM ? document.getElementById('matchSubmitBtn') : document.getElementById('joinSubmitBtn');
         const spinner = isM ? document.getElementById('match-spinner') : document.getElementById('join-spinner');
-        
-        if (isM) {
-            if (!document.getElementById('p1').value || !document.getElementById('pin').value || !document.getElementById('p2').value || document.getElementById('s1').value === "" || fileInput.files.length === 0) return alert("⚠️ Complete all fields and attach proof.");
-        } else {
-            if (!document.getElementById('j_name').value || !document.getElementById('j_pin').value || !document.getElementById('j_league').value || !document.getElementById('j_email').value || fileInput.files.length === 0) return alert("⚠️ All fields mandatory.");
-        }
-
         btn.disabled = true; spinner.style.display = "block";
-        const originalText = btn.querySelector('span').innerText;
-        btn.querySelector('span').innerText = "SENDING...";
-
         const data = {
             type: isM ? "MATCH" : "JOIN_REQUEST", 
             player1: document.getElementById(isM ? 'p1' : 'j_name').value, 
@@ -362,20 +334,12 @@
             p1_hco: isM ? (document.getElementById('p1_hco').value || 0) : 0, 
             images: []
         };
-
         try {
             const imagePromises = Array.from(fileInput.files).map(f => toBase64(f));
-            const base64Results = await Promise.all(imagePromises);
-            data.images = base64Results.map(res => res.split(',')[1]);
-
+            data.images = (await Promise.all(imagePromises)).map(res => res.split(',')[1]);
             await fetch(scriptURL, { method: 'POST', body: JSON.stringify(data), mode: 'no-cors' });
-            alert("🎯 SUBMISSION SENT!");
-            location.reload();
-        } catch (err) { 
-            alert("Error sending. Try again."); 
-            btn.disabled = false; spinner.style.display = "none"; 
-            btn.querySelector('span').innerText = originalText; 
-        }
+            alert("🎯 SENT!"); location.reload();
+        } catch (err) { alert("Error."); btn.disabled = false; spinner.style.display = "none"; }
     }
 
     const toBase64 = f => new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(f); r.onload = () => res(r.result); r.onerror = e => rej(e); });
