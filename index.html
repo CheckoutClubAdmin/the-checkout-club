@@ -15,7 +15,6 @@
         nav a { color: white; text-decoration: none; font-weight: bold; cursor: pointer; padding: 8px 12px; font-size: 11px; border-radius: 4px; background: rgba(255,255,255,0.05); text-transform: uppercase; transition: 0.3s; }
         nav a:hover { background: var(--red); }
 
-        /* New Sticky Timer Style */
         #countdown-timer { 
             background: rgba(0, 0, 0, 0.8); 
             backdrop-filter: blur(8px);
@@ -28,7 +27,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             position: sticky;
-            top: 45px; /* Sits below nav */
+            top: 45px;
             z-index: 999;
             width: 100%;
             box-sizing: border-box;
@@ -63,10 +62,10 @@
         
         .row-promote { background-color: rgba(40, 167, 69, 0.2) !important; border-left: 4px solid #28a745; }
         .row-relegate { background-color: rgba(220, 53, 69, 0.2) !important; border-left: 4px solid #dc3545; }
-        .row-urgent { background-color: #721c24 !important; border-left: 4px solid #f5c6cb; }
-        .row-overdue { background-color: #856404 !important; border-left: 4px solid #ffeeba; }
+        .row-urgent { background-color: rgba(114, 28, 36, 0.4) !important; border-left: 5px solid #ff4444; }
+        .row-overdue { background-color: rgba(133, 100, 4, 0.4) !important; border-left: 5px solid #ffa500; }
 
-        .status-pending { color: var(--gold); font-weight: bold; }
+        .status-pending { color: var(--gold); font-weight: bold; font-style: italic; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid var(--accent); background: var(--dark); color: white; box-sizing: border-box; font-size: 16px; }
         
         .stat-label { font-size: 12px; color: var(--gold); margin-top: 10px; display: block; font-weight: bold; }
@@ -154,7 +153,7 @@
         <div class="card">
             <h2>🎯 Submit Match Score</h2>
             <input type="text" id="p1" placeholder="Your Registered Name">
-            <input type="password" id="pin" placeholder="Your 4-Digit PIN">
+            <input type="password" id="pin" placeholder="Your 4-Digit PIN" maxlength="4">
             <button type="button" onclick="fetchOpponents()" style="background:var(--accent); color:white; border:none; padding:12px; border-radius:5px; width:100%; margin-bottom:10px; font-weight:bold; cursor:pointer;">FIND MY FIXTURES</button>
             <select id="p2"><option value="">-- Select Opponent --</option></select>
             <div style="display:flex; gap:10px;">
@@ -180,7 +179,7 @@
             <h2>📝 Join The Club</h2>
             <input type="text" id="j_name" placeholder="Full Name">
             <input type="email" id="j_email" placeholder="Email Address (Mandatory)">
-            <input type="password" id="j_pin" placeholder="Create 4-Digit PIN">
+            <input type="password" id="j_pin" placeholder="Create 4-Digit PIN" maxlength="4">
             <select id="j_league">
                <option value="">-- Select Target League --</option>
                <option value="Premiership">Premiership (Avg 55+)</option>
@@ -198,7 +197,7 @@
             <hr style="margin: 30px 0; border: 0; border-top: 1px solid #444;">
             <h2>🔍 Check Application Status</h2>
             <input type="text" id="c_name" placeholder="Full Name">
-            <input type="password" id="c_pin" placeholder="PIN">
+            <input type="password" id="c_pin" placeholder="PIN" maxlength="4">
             <button type="button" onclick="checkStatus()" style="background:var(--accent); color:white; border:none; padding:12px; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">CHECK STATUS</button>
             <div id="statusResult"></div>
         </div>
@@ -279,6 +278,7 @@
                    if (index < 2) rowClass = "row-promote";
                    else if (index >= totalRows - 2 && totalRows > 4) rowClass = "row-relegate";
                } else if (viewType === 'fixtures') {
+                   // Check specifically for status column (usually 11 in sheet, check array index accordingly)
                    if (row[11] === "URGENT") rowClass = "row-urgent";
                    else if (row[11] === "OVERDUE") rowClass = "row-overdue";
                }
@@ -334,6 +334,7 @@
         const btn = isM ? document.getElementById('matchSubmitBtn') : document.getElementById('joinSubmitBtn');
         const spinner = isM ? document.getElementById('match-spinner') : document.getElementById('join-spinner');
         
+        // Validation logic
         if (isM) {
             if (!document.getElementById('p1').value || !document.getElementById('pin').value || !document.getElementById('p2').value || document.getElementById('s1').value === "" || fileInput.files.length === 0) return alert("⚠️ Complete all fields and attach proof.");
         } else {
@@ -359,7 +360,11 @@
         };
 
         try {
-            for (let f of fileInput.files) { const b64 = await toBase64(f); data.images.push(b64.split(',')[1]); }
+            // Process multiple files
+            const imagePromises = Array.from(fileInput.files).map(f => toBase64(f));
+            const base64Results = await Promise.all(imagePromises);
+            data.images = base64Results.map(res => res.split(',')[1]);
+
             await fetch(scriptURL, { method: 'POST', body: JSON.stringify(data), mode: 'no-cors' });
             alert("🎯 SUBMISSION SENT!");
             location.reload();
