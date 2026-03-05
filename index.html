@@ -9,14 +9,15 @@
         :root { --red: #e63946; --gold: #ffcc00; --dark: #0b0c10; --card: #1f2833; --text: #c5c6c7; --accent: #45a29e; --header-bg: #2c3e50; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--dark); color: white; text-align: center; margin: 0; overflow-x: hidden; }
         
-        .header-brand h1 { font-family: 'Playfair Display', serif; font-size: 3.5rem; font-weight: 900; color: var(--gold); margin-top: 15px; letter-spacing: 2px; text-transform: uppercase; text-shadow: 3px 3px 0px rgba(0,0,0,0.8); }
+        .header-brand { padding-top: 10px; } /* Reduced padding since logo is bigger */
+        .header-brand h1 { font-family: 'Playfair Display', serif; font-size: 3.5rem; font-weight: 900; color: var(--gold); margin-top: 10px; letter-spacing: 2px; text-transform: uppercase; text-shadow: 3px 3px 0px rgba(0,0,0,0.8); margin-bottom: 25px;}
         
         nav { background: var(--card); padding: 15px; border-bottom: 3px solid var(--red); position: sticky; top: 0; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; z-index: 1000; }
         nav a { color: white; text-decoration: none; font-weight: bold; cursor: pointer; padding: 8px 12px; font-size: 11px; border-radius: 4px; background: rgba(255,255,255,0.05); text-transform: uppercase; transition: 0.3s; }
         nav a:hover { background: var(--red); }
 
         #countdown-timer { 
-            background: rgba(0, 0, 0, 0.8); 
+            background: rgba(0, 0, 0, 0.9); 
             backdrop-filter: blur(8px);
             border-bottom: 2px solid var(--red); 
             padding: 12px; 
@@ -76,13 +77,18 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         #pwa-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--card); border: 2px solid var(--gold); padding: 15px; border-radius: 10px; display: none; z-index: 2000; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .logo { width: 150px; height: 150px; border-radius: 50%; border: 2px solid var(--gold); box-shadow: 0 0 20px rgba(230, 57, 70, 0.4); margin-bottom: 20px;}
+        
+        /* Spacing & Logo Size Fix */
+        .logo { width: 220px; height: 220px; border-radius: 50%; border: 3px solid var(--gold); box-shadow: 0 0 25px rgba(230, 57, 70, 0.5); margin-bottom: 20px; margin-top: 20px; transition: 0.3s;}
+        
         #statusResult { margin-top: 15px; padding: 15px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--gold); color: var(--gold); font-weight: bold; display: none; text-align: center; }
         
         @media (max-width: 600px) { 
             nav a { padding: 6px 8px; font-size: 9px; } 
-            .header-brand h1 { font-size: 2.2rem; } 
+            .header-brand h1 { font-size: 2.2rem; margin-bottom: 15px;} 
             #countdown-timer { font-size: 1rem; top: 38px; }
+            .header-brand { padding-top: 5px; }
+            .logo { width: 160px; height: 160px; } /* Slightly smaller for mobile */
         }
     </style>
 </head>
@@ -278,7 +284,6 @@
                    if (index < 2) rowClass = "row-promote";
                    else if (index >= totalRows - 2 && totalRows > 4) rowClass = "row-relegate";
                } else if (viewType === 'fixtures') {
-                   // Check specifically for status column (usually 11 in sheet, check array index accordingly)
                    if (row[11] === "URGENT") rowClass = "row-urgent";
                    else if (row[11] === "OVERDUE") rowClass = "row-overdue";
                }
@@ -334,7 +339,6 @@
         const btn = isM ? document.getElementById('matchSubmitBtn') : document.getElementById('joinSubmitBtn');
         const spinner = isM ? document.getElementById('match-spinner') : document.getElementById('join-spinner');
         
-        // Validation logic
         if (isM) {
             if (!document.getElementById('p1').value || !document.getElementById('pin').value || !document.getElementById('p2').value || document.getElementById('s1').value === "" || fileInput.files.length === 0) return alert("⚠️ Complete all fields and attach proof.");
         } else {
@@ -360,7 +364,6 @@
         };
 
         try {
-            // Process multiple files
             const imagePromises = Array.from(fileInput.files).map(f => toBase64(f));
             const base64Results = await Promise.all(imagePromises);
             data.images = base64Results.map(res => res.split(',')[1]);
